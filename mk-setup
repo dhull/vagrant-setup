@@ -1,0 +1,24 @@
+#! /bin/bash
+
+# Creates a release-independent tar file containing a basic home
+# directory for the user, which is installed by bootstrap.sh.
+
+TMPDIR=$(mktemp -d -t vagrantXXXXXX) || exit 1
+echo "using temporary directory $TMPDIR"
+(
+    cd $TMPDIR
+
+    # Set up ssh.
+    mkdir -m 700 .ssh
+    cp $HOME/.ssh/id_rsa.pub .ssh/authorized_keys
+
+    # Set up git configuration.
+    cp -p $HOME/.gitconfig $HOME/.gitignore_global .
+)
+
+if ! -d setup; then
+    mkdir setup
+fi
+
+tar czf setup/userhome.tar.gz -C $TMPDIR .
+rm -rf $TMPDIR

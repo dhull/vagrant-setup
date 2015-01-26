@@ -1,0 +1,4 @@
+# Sourced by bootstrap.sh
+USERNAME=david.hull
+# Extra arguments for useradd.  Set fullname, shell, etc.
+USERADD_EXTRA=(--comment="David Hull" --shell=/bin/bash)

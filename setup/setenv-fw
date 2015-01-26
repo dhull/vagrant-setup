@@ -1,0 +1,28 @@
+# -*- mode: sh -*-
+
+FW_OS_VERSION=$(perl -n -e 'print m/release\s+(\d\S+)/ ? $1 : "unknown"; exit;' /etc/redhat-release)
+FW_YUM_DIR=/var/www/html/codex.openx.org/yum
+case "$FW_OS_VERSION" in
+    5.*)
+        export FW_RPM_REPO_BASEDIR=$FW_YUM_DIR/openx/centos-5/testing
+        FW_REPO_DATABASE=$FW_YUM_DIR/comps.xml
+        ;;
+    6.*)
+        export FW_RPM_REPO_BASEDIR=$FW_YUM_DIR/openx/centos-6/testing
+        FW_REPO_DATABASE=$FW_YUM_DIR/openx/centos-6/comps.xml
+        ;;
+    *)
+        echo "unknown OS version \"$FW_OS_VERSION\"" 1>&2
+        ;;
+esac
+
+if test -n "$FW_RPM_REPO_BASEDIR"; then
+    export FW_RPM_REPO_USER=yumrepo
+    export FW_RPM_REPO_HOST=codex.pasadena.openx.org
+    export FW_RPM_POSTCREATEREPO_COMMANDS=true
+    export FW_RPM_CREATEREPO_ARGS="-q -g $FW_REPO_DATABASE --database"
+    #FW_POST_RELEASE_COMMANDS=(git ls-remote > /dev/null 2> /dev/null && git push && git push --tags) ; exit 0
+fi
+
+unset FW_OS_VERSION
+unset FW_YUM_DIR
