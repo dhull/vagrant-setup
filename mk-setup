@@ -3,6 +3,8 @@
 # Creates a release-independent tar file containing a basic home
 # directory for the user, which is installed by bootstrap.sh.
 
+. setup/config
+
 TMPDIR=$(mktemp -d -t vagrantXXXXXX) || exit 1
 echo "using temporary directory $TMPDIR"
 (
@@ -10,13 +12,25 @@ echo "using temporary directory $TMPDIR"
 
     # Set up ssh.
     mkdir -m 700 .ssh
-    cp $HOME/.ssh/id_rsa.pub .ssh/authorized_keys
+    cat $HOME/.ssh/id*.pub >.ssh/authorized_keys
 
-    # Set up git configuration.
-    cp -p $HOME/.gitconfig $HOME/.gitignore_global .
+    # Set up git configuration.  Copy $HOME/.gitconfig, and any
+    # external files referenced in .gitconfig, into the new homedir.
+    USERNAME="$USERNAME" \
+    perl -p \
+         -MFile::Basename -MFile::Copy \
+         -e 'if (m/^(\s*(?:excludesfile|attributesfile|template)\s*=\s*)(\S+)/) {' \
+         -e '  my ($prefix, $o) = ($1, $2); ' \
+         -e '  my $n = File::Basename::basename($o);' \
+         -e '  File::Copy::copy($o, $n) or die "cp $o $n: $!";' \
+         -e '  $_ = "$prefix/home/$ENV{USERNAME}/$n\n";' \
+         -e '}' $HOME/.gitconfig >.gitconfig
+
+    git config -f .gitconfig user.name "$USER_FULLNAME"
+    git config -f .gitconfig user.email "$USER_EMAIL"
 )
 
-if ! -d setup; then
+if ! test -d setup; then
     mkdir setup
 fi
 

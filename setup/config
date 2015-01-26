@@ -1,4 +1,6 @@
 # Sourced by bootstrap.sh
 USERNAME=david.hull
+USER_FULLNAME="David Hull"
+USER_EMAIL="$USERNAME@openx.org"
 # Extra arguments for useradd.  Set fullname, shell, etc.
-USERADD_EXTRA=(--comment="David Hull" --shell=/bin/bash)
+USERADD_EXTRA=(--comment="$USER_FULLNAME" --shell=/bin/bash)
