@@ -10,7 +10,7 @@ echo "using temporary directory $TMPDIR"
 (
     cd $TMPDIR
 
-    # Set up ssh.
+    # Set up ssh configuration.
     mkdir -m 700 .ssh
     cat $HOME/.ssh/id*.pub >.ssh/authorized_keys
 
@@ -25,9 +25,13 @@ echo "using temporary directory $TMPDIR"
          -e '  File::Copy::copy($o, $n) or die "cp $o $n: $!";' \
          -e '  $_ = "$prefix/home/$ENV{USERNAME}/$n\n";' \
          -e '}' $HOME/.gitconfig >.gitconfig
-
     git config -f .gitconfig user.name "$USER_FULLNAME"
     git config -f .gitconfig user.email "$USER_EMAIL"
+
+    # Set up ox-map-hosts configuration.
+    if test -f $HOME/.ox-map-hosts-rc; then
+        cp $HOME/.ox-map-hosts-rc .
+    fi
 )
 
 if ! test -d setup; then
