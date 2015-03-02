@@ -40,6 +40,11 @@ USERNAME_DOTLESS=$(echo $USERNAME | tr -d '.~')
 echo "$USERNAME ALL=(ALL) NOPASSWD:ALL" >/etc/sudoers.d/user-$USERNAME_DOTLESS
 chmod 0440 /etc/sudoers.d/user-$USERNAME_DOTLESS
 
+# Install openx-codex-testing yum repo as first step so that the
+# second "yum install" will see it.
+yum install -y \
+  openx-codex-repo-testing
+
 # basic delivery dev setup
 yum install -y \
   zsh \
@@ -54,6 +59,5 @@ yum install -y \
   git \
   gitflow \
   rpm-build \
-  ox-map-hosts \
-  openx-codex-repo-testing
+  ox-map-hosts
 
