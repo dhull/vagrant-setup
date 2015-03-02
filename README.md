@@ -11,3 +11,12 @@ that VirtualBox 4.3.20-96996 and later works.
 2. Run `./mk-setup`.  This creates a personalized tar file that will be used to populate your account in the new instance.
 3. cd into the directory for the OS version you want to create an instance for and run `vagrant up`.
 
+I add the following to my `.ssh/config`, so that I can log in to my
+instance with `ssh cos6`:
+
+```
+Host cos6
+        Hostname 192.168.56.201
+        User david.hull
+        ForwardAgent yes
+```
