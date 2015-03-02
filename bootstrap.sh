@@ -2,14 +2,17 @@
 
 # Vagrant runs this script inside the newly-created VM to customize it.
 
-HOSTNAME=$(perl -e '$hn = lc(shift); $hn =~ s/[^a-z0-9]+/-/g; print $hn;' "$1")
-
 . /vagrant-setup/config
+
+# Construct the hostname for the VM.  It is derived from the "box"
+# name (passed as the first command-line argument to this script) and
+# the username we are constructing the VM for.
+HOSTNAME=$(perl -e 'my @hn = map { my $s = lc($_); $s =~ s/[^a-z0-9]+//g; $s } @ARGV; print join("-", @hn);' "$1" "$USERNAME")
 
 echo "Provisioning from bootstrap.sh"
 
 # Set hostname.
-if egrep '^HOSTNAME=' /etc/sysconfig/network; then
+if egrep '^HOSTNAME=' /etc/sysconfig/network >/dev/null; then
     perl -i -p \
          -e 'BEGIN { $hn = shift; }' \
          -e 's/^HOSTNAME=\K.*/$hn/;' \
