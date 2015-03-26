@@ -68,3 +68,19 @@ cat >/etc/mondemand/mondemand.conf <<EOF
 MONDEMAND_ADDR="127.0.0.1"
 MONDEMAND_PORT="20402"
 EOF
+
+# Any files in /vagrant-setup/dotfiles (without the leading '.') will
+# be symlinked into the user's home directory.
+(
+    cd /home/$USERNAME
+    for F in /vagrant-setup/dotfiles/*; do
+        L=.$(basename $F)
+        rm -f $L
+        ln -s $F $L
+    done
+)
+
+# Run personal bootstrap if it exists.
+if test -f /vagrant-setup/bootstrap-local.sh; then
+    /vagrant-setup/bootstrap-local.sh "$USERNAME"
+fi
