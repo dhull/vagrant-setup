@@ -9,7 +9,7 @@
 # the username we are constructing the VM for.
 HOSTNAME=$(perl -e 'my @hn = map { my $s = lc($_); $s =~ s/[^a-z0-9]+//g; $s } @ARGV; print join("-", @hn);' "$1" "$USERNAME")
 
-echo "Provisioning from bootstrap.sh"
+echo "Provisioning from bootstrap.sh for $USERNAME"
 
 # Set hostname.
 if egrep '^HOSTNAME=' /etc/sysconfig/network >/dev/null; then
@@ -23,7 +23,7 @@ if test -f /etc/hostname; then
 fi
 hostname "$HOSTNAME"
 
-# Create the user if he doesn't already exist.
+# Create the user's account if it doesn't already exist.
 if ! egrep "^$USERNAME:" /etc/passwd >/dev/null; then
     echo "Creating user $USERNAME"
     useradd "${USERADD_EXTRA[@]}" $USERNAME
@@ -45,10 +45,11 @@ chmod 0440 /etc/sudoers.d/user-$USERNAME_DOTLESS
 yum install -y \
   openx-codex-repo-testing
 
-# basic delivery dev setup
+# Install core RPMs for demand development.
 yum install -y \
   zsh \
   erlang-R15B-03.1 \
+  erlnode-0.5.0 \
   framewerk \
   fw-template-cxx \
   fw-template-erlang-rebar \
@@ -56,6 +57,7 @@ yum install -y \
   fw-template-java-mvn \
   fw-template-c \
   fw-template-erlang \
+  svn \
   git \
   gitflow \
   rpm-build \
