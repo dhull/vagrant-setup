@@ -63,3 +63,8 @@ yum install -y \
   rpm-build \
   ox-map-hosts
 
+mkdir /etc/mondemand
+cat >/etc/mondemand/mondemand.conf <<EOF
+MONDEMAND_ADDR="127.0.0.1"
+MONDEMAND_PORT="20402"
+EOF
