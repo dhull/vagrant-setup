@@ -65,9 +65,9 @@ if egrep '^HOSTNAME=' /etc/sysconfig/network >/dev/null; then
          "$HOSTNAME" /etc/sysconfig/network
 fi
 if test -f /etc/hostname; then
-    echo "$HOSTNAME" >/etc/hostname
+    echo "$HOSTNAME$DOMAINNAME" >/etc/hostname
 fi
-hostname "$HOSTNAME"
+hostname "$HOSTNAME$DOMAINNAME"
 
 # Any files in /vagrant-setup/dotfiles (without the leading '.') will
 # be symlinked into the user's home directory.

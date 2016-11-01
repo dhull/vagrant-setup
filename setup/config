@@ -2,5 +2,7 @@
 USERNAME=david.hull
 USER_FULLNAME="David Hull"
 USER_EMAIL="$USERNAME@openx.com"
+# Domain used for setting VM's hostname.
+DOMAINNAME=.corp.openx.com
 # Extra arguments for useradd.  Set fullname, shell, etc.
 USERADD_EXTRA=(--comment="$USER_FULLNAME" --shell=/bin/bash)
