@@ -46,10 +46,9 @@ yum install -y \
   openx-codex-repo-testing
 
 # Install core RPMs for demand development.
-yum install -y \
+yum install -y --nogpgcheck \
   zsh \
-  erlang-R15B-03.1 \
-  erlnode-0.5.0 \
+  erlang-18.3 \
   framewerk \
   fw-template-cxx \
   fw-template-erlang-rebar \
@@ -63,7 +62,7 @@ yum install -y \
   rpm-build \
   ox-map-hosts
 
-mkdir /etc/mondemand
+mkdir -p /etc/mondemand
 cat >/etc/mondemand/mondemand.conf <<EOF
 MONDEMAND_ADDR="127.0.0.1"
 MONDEMAND_PORT="20402"

@@ -24,5 +24,7 @@ if test -n "$FW_RPM_REPO_BASEDIR"; then
     #FW_POST_RELEASE_COMMANDS=(git ls-remote > /dev/null 2> /dev/null && git push && git push --tags) ; exit 0
 fi
 
+# Might also want:
+# export FW_SKIP_TAG=1
 unset FW_OS_VERSION
 unset FW_YUM_DIR
