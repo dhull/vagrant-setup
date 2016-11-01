@@ -4,24 +4,7 @@
 
 . /vagrant-setup/config
 
-# Construct the hostname for the VM.  It is derived from the "box"
-# name (passed as the first command-line argument to this script) and
-# the username we are constructing the VM for.
-HOSTNAME=$(perl -e 'my @hn = map { my $s = lc($_); $s =~ s/[^a-z0-9]+//g; $s } @ARGV; print join("-", @hn);' "$1" "$USERNAME")
-
-echo "Provisioning from bootstrap.sh for $USERNAME"
-
-# Set hostname.
-if egrep '^HOSTNAME=' /etc/sysconfig/network >/dev/null; then
-    perl -i -p \
-         -e 'BEGIN { $hn = shift; }' \
-         -e 's/^HOSTNAME=\K.*/$hn/;' \
-         "$HOSTNAME" /etc/sysconfig/network
-fi
-if test -f /etc/hostname; then
-    echo "$HOSTNAME" >/etc/hostname
-fi
-hostname "$HOSTNAME"
+echo "Provisioning $1 from bootstrap.sh for $USERNAME"
 
 # Create the user's account if it doesn't already exist.
 if ! egrep "^$USERNAME:" /etc/passwd >/dev/null; then
@@ -47,6 +30,7 @@ yum install -y \
 
 # Install core RPMs for demand development.
 yum install -y --nogpgcheck \
+  perl \
   zsh \
   erlang-18.3 \
   framewerk \
@@ -67,6 +51,23 @@ cat >/etc/mondemand/mondemand.conf <<EOF
 MONDEMAND_ADDR="127.0.0.1"
 MONDEMAND_PORT="20402"
 EOF
+
+# Construct the hostname for the VM.  It is derived from the "box"
+# name (passed as the first command-line argument to this script) and
+# the username we are constructing the VM for.
+HOSTNAME=$(perl -e 'my @hn = map { my $s = lc($_); $s =~ s,^.*/,,; $s =~ s/[^a-z0-9]+//g; $s } @ARGV; print join("-", @hn);' "$1" "$USERNAME")
+
+# Set hostname.
+if egrep '^HOSTNAME=' /etc/sysconfig/network >/dev/null; then
+    perl -i -p \
+         -e 'BEGIN { $hn = shift; }' \
+         -e 's/^HOSTNAME=\K.*/$hn/;' \
+         "$HOSTNAME" /etc/sysconfig/network
+fi
+if test -f /etc/hostname; then
+    echo "$HOSTNAME" >/etc/hostname
+fi
+hostname "$HOSTNAME"
 
 # Any files in /vagrant-setup/dotfiles (without the leading '.') will
 # be symlinked into the user's home directory.
