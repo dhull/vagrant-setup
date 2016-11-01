@@ -14,6 +14,12 @@ echo "using temporary directory $TMPDIR"
     mkdir -m 700 .ssh
     cat $HOME/.ssh/id*.pub >.ssh/authorized_keys
 
+    cat >.ssh/config <<'EOF'
+TCPKeepAlive yes
+ServerAliveInterval 60
+ServerAliveCountMax 10
+EOF
+
     # Set up git configuration.  Copy $HOME/.gitconfig, and any
     # external files referenced in .gitconfig, into the new homedir.
     USERNAME="$USERNAME" \
