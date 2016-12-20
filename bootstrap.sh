@@ -23,6 +23,9 @@ USERNAME_DOTLESS=$(echo $USERNAME | tr -d '.~')
 echo "$USERNAME ALL=(ALL) NOPASSWD:ALL" >/etc/sudoers.d/user-$USERNAME_DOTLESS
 chmod 0440 /etc/sudoers.d/user-$USERNAME_DOTLESS
 
+# http://codex.master.openx.org/yum/openx/centos-7/released/noarch/openx-codex-repo-released-7-1.0-2.noarch.rpm
+yum install -y /vagrant-setup/openx-codex-repo-released-7-1.0-2.noarch.rpm
+
 # Install openx-codex-testing yum repo as first step so that the
 # second "yum install" will see it.
 yum install -y \
@@ -30,8 +33,6 @@ yum install -y \
 
 # Install core RPMs for demand development.
 yum install -y --nogpgcheck \
-  perl \
-  zsh \
   erlang-18.3 \
   framewerk \
   fw-template-cxx \
@@ -39,12 +40,7 @@ yum install -y --nogpgcheck \
   fw-template-opt-maven-rpm \
   fw-template-java-mvn \
   fw-template-c \
-  fw-template-erlang \
-  svn \
-  git \
-  gitflow \
-  rpm-build \
-  ox-map-hosts
+  fw-template-erlang
 
 mkdir -p /etc/mondemand
 cat >/etc/mondemand/mondemand.conf <<EOF
@@ -84,3 +80,10 @@ hostname "$HOSTNAME$DOMAINNAME"
 if test -f /vagrant-setup/bootstrap-local.sh; then
     /vagrant-setup/bootstrap-local.sh "$USERNAME"
 fi
+
+# Some versions of vagrant mess up vagrant's ssh permissions.
+# if test -d /home/vagrant/.ssh; then
+#     chown vagrant.vagrant /home/vagrant/.ssh # /home/vagrant/.ssh/authorized_keys
+#     chmod 0700 /home/vagrant/.ssh
+# #    chmod 0600 /home/vagrant/.ssh/authorized_keys
+# fi
