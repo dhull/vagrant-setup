@@ -67,8 +67,9 @@ hostname "$HOSTNAME$DOMAINNAME"
 
 # Symlink jq (https://stedolan.github.io/jq/) into $HOME/bin.  This is
 # a statically linked Linux x86-64 executable.
-if ! test -e /home/$USERNAME/jq; then
-    ln -s /vagrant-setup/jq-linux /home/$USERNAME/jq
+mkdir -p /home/$USERNAME/bin
+if ! test -e /home/$USERNAME/bin/jq; then
+    ln -s /vagrant-setup/jq-linux /home/$USERNAME/bin/jq
 fi
 
 # Any files in /vagrant-setup/dotfiles (without the leading '.') will
