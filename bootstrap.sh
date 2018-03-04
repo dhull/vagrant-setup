@@ -23,30 +23,54 @@ USERNAME_DOTLESS=$(echo $USERNAME | tr -d '.~')
 echo "$USERNAME ALL=(ALL) NOPASSWD:ALL" >/etc/sudoers.d/user-$USERNAME_DOTLESS
 chmod 0440 /etc/sudoers.d/user-$USERNAME_DOTLESS
 
-# http://codex.master.openx.org/yum/openx/centos-7/released/noarch/openx-codex-repo-released-7-1.0-2.noarch.rpm
-yum install -y /vagrant-setup/openx-codex-repo-released-7-1.0-2.noarch.rpm
+# https://maven.openx.org/artifactory/releng/certs/megabundle.crt
+(cd /etc/pki/tls/certs/; curl -k -O https://maven.openx.org/artifactory/releng/certs/megabundle.crt)
+(cd /etc/pki/ca-trust/source/anchors; ln -s  ../../../tls/certs/megabundle.crt .)
+/usr/bin/update-ca-trust
 
-# Install openx-codex-testing yum repo as first step so that the
-# second "yum install" will see it.
+# https://maven.openx.org/artifactory/libs-release-local/openx-artifactory-repo-devtools-1.2.0-1.noarch.rpm
+# https://maven.openx.org/artifactory/centos-7-local/release/x86_64/openx-artifactory-repo-released-1.5-1.x86_64.rpm
 yum install -y \
-  openx-codex-repo-testing
+  /vagrant-setup/openx-artifactory-repo-devtools-1.2.0-1.noarch.rpm \
+  /vagrant-setup/openx-artifactory-repo-released-1.5-1.x86_64.rpm
+
+# # Install openx-codex-testing yum repo as first step so that the
+# # second "yum install" will see it.
+# yum install -y \
+#   openx-codex-repo-testing
 
 # Install core RPMs for demand development.
 yum install -y --nogpgcheck \
-  erlang-18.3 \
-  framewerk \
-  fw-template-cxx \
-  fw-template-erlang-rebar \
-  fw-template-opt-maven-rpm \
-  fw-template-java-mvn \
-  fw-template-c \
-  fw-template-erlang
+  rpm-build \
+  openx-devtools
 
+ox-install-dev -y -e 18.3.4.7-4.4.7.1
+
+# Install docker
+if test "$OSVER" -ge 7; then
+    yum install -y https://download.docker.com/linux/centos/7/x86_64/stable/Packages/docker-ce-17.12.1.ce-1.el7.centos.x86_64.rpm
+    systemctl enable docker.service
+    usermod -a -G docker $USERNAME
+fi
+
+# Install google-cloud-sdk.
+# https://cloud.google.com/sdk/downloads#yum
+if test "$OSVER" -ge 7; then
+    cp /vagrant-setup/google-cloud-sdk.repo /etc/yum.repos.d/
+    yum install google-cloud-sdk
+fi
+
+
+# Create a dummy mondemand config.
 mkdir -p /etc/mondemand
 cat >/etc/mondemand/mondemand.conf <<EOF
 MONDEMAND_ADDR="127.0.0.1"
 MONDEMAND_PORT="20402"
 EOF
+
+# Create ox-simple-config (oxcon) directories.
+mkdir -p /etc/ox/oxcon/{defaults,overrides,local}
+
 
 # Construct the hostname for the VM.  It is derived from the "box"
 # name (passed as the first command-line argument to this script) and
