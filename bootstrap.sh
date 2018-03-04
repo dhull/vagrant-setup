@@ -2,6 +2,8 @@
 
 # Vagrant runs this script inside the newly-created VM to customize it.
 
+OSVER=$(perl -n -e 'm/release\s+(\d+)/ and print $1' /etc/redhat-release)
+
 . /vagrant-setup/config
 
 echo "Provisioning $1 from bootstrap.sh for $USERNAME"
@@ -30,9 +32,10 @@ chmod 0440 /etc/sudoers.d/user-$USERNAME_DOTLESS
 
 # https://maven.openx.org/artifactory/libs-release-local/openx-artifactory-repo-devtools-1.2.0-1.noarch.rpm
 # https://maven.openx.org/artifactory/centos-7-local/release/x86_64/openx-artifactory-repo-released-1.5-1.x86_64.rpm
+# https://maven.openx.org/artifactory/centos-7-local/release/x86_64/com/openx/releng/repos/openx-artifactory-released-centos-1.0-1.x86_64.rpm
 yum install -y \
   /vagrant-setup/openx-artifactory-repo-devtools-1.2.0-1.noarch.rpm \
-  /vagrant-setup/openx-artifactory-repo-released-1.5-1.x86_64.rpm
+  /vagrant-setup/openx-artifactory-repo-released-1.6-1.x86_64.rpm
 
 # # Install openx-codex-testing yum repo as first step so that the
 # # second "yum install" will see it.
@@ -44,20 +47,28 @@ yum install -y --nogpgcheck \
   rpm-build \
   openx-devtools
 
-ox-install-dev -y -e 18.3.4.7-4.4.7.1
+# I don't want openx-devtools to turn requires of "perl(Module)" into "openx-perl(Module)".
+rm -f /usr/bin/ox-perl-provide /usr/bin/ox-perl-require /etc/rpm/macros.ox-perl
+
+case "$OSVER" in
+    6) ERLANG_VERSION=18.3.4.7-4.4.7.1 ;;
+    *) ERLANG_VERSION=18.3.4.7-4.8.5.1 ;;
+esac
+ox-install-dev -y -e $ERLANG_VERSION
 
 # Install docker
 if test "$OSVER" -ge 7; then
     yum install -y https://download.docker.com/linux/centos/7/x86_64/stable/Packages/docker-ce-17.12.1.ce-1.el7.centos.x86_64.rpm
     systemctl enable docker.service
     usermod -a -G docker $USERNAME
+    systemctl start docker.service
 fi
 
 # Install google-cloud-sdk.
 # https://cloud.google.com/sdk/downloads#yum
 if test "$OSVER" -ge 7; then
     cp /vagrant-setup/google-cloud-sdk.repo /etc/yum.repos.d/
-    yum install google-cloud-sdk
+    yum install -y google-cloud-sdk
 fi
 
 
@@ -111,10 +122,3 @@ fi
 if test -f /vagrant-setup/bootstrap-local.sh; then
     /vagrant-setup/bootstrap-local.sh "$USERNAME"
 fi
-
-# Some versions of vagrant mess up vagrant's ssh permissions.
-# if test -d /home/vagrant/.ssh; then
-#     chown vagrant.vagrant /home/vagrant/.ssh # /home/vagrant/.ssh/authorized_keys
-#     chmod 0700 /home/vagrant/.ssh
-# #    chmod 0600 /home/vagrant/.ssh/authorized_keys
-# fi
