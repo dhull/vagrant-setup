@@ -35,7 +35,7 @@ chmod 0440 /etc/sudoers.d/user-$USERNAME_DOTLESS
 # https://maven.openx.org/artifactory/centos-7-local/release/x86_64/com/openx/releng/repos/openx-artifactory-released-centos-1.0-1.x86_64.rpm
 yum install -y \
   /vagrant-setup/openx-artifactory-repo-devtools-1.2.0-1.noarch.rpm \
-  /vagrant-setup/openx-artifactory-repo-released-1.6-1.x86_64.rpm
+  /vagrant-setup/openx-artifactory-repo-released-1.5-1.x86_64.rpm
 
 # # Install openx-codex-testing yum repo as first step so that the
 # # second "yum install" will see it.
