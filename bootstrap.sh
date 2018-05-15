@@ -43,6 +43,19 @@ yum install -y \
 #   openx-codex-repo-testing
 
 # Install core RPMs for demand development.
+if test "$OSVER" = 6; then
+    # locally-created rpm-4.10 RPMs are no longer available; install stock rpm-4.8.
+    rpm -e $(rpm -q -a | egrep abrt)
+    rpm -e rpm-build-libs --nodeps
+    : >/etc/yum.conf
+    yum downgrade -y rpm-libs-4.8.0-37.el6 rpm-python-4.8.0-37.el6 rpm-4.8.0-37.el6 yum-3.2.29-43.el6.centos
+    rpm --rebuilddb
+    curl -o /tmp/python-argparse.rpm -k https://maven.openx.org/artifactory/centos-6-local/release/noarch/org/postgresql/python-argparse-1.2.1-3.rhel6.noarch.rpm
+    curl -o /tmp/python-requests.rpm -k https://maven.openx.org/artifactory/ext-release-local/com/openx/python/2.6/python-requests-2.4.3-1.noarch.rpm
+    yum install -y --nogpgcheck \
+	/tmp/python-argparse.rpm /tmp/python-requests.rpm ox-promote-artifact-2.4
+fi
+
 yum install -y --nogpgcheck \
   rpm-build \
   openx-devtools
